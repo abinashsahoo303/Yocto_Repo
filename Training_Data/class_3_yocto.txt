@@ -1,0 +1,102 @@
+How to create new rootfs:
+************************
+
+cd meta-thales/
+install -d recipes-images/images
+cd recipes-images/images
+vim core-image-thales.bb
+------------------------
+DESCRIPTION=""
+LICENSE=""
+IMGE_INSTALL ="packagegroup-core-boot "
+
+IMAGE_INSTALL_append =" \
+	modbus \
+	mbpoll\
+"
+
+inherit core-image
+
+
+*****************************************
+How to write a bb file for u-boot:
+**********************************
+u-boot_2021.01.bb:
+******************
+DESCRIPTION=""
+
+LICENSE=""
+LIC_FILES_CHKSUM=""
+
+BRANCH="2021.01"
+SRC_URI="git://example.com/u-boot.git;branch=${BRANCH};protocol=https"
+SRCREV="823y8k2n89edfu3f3i943"
+
+
+S="${WORKDIR}"
+inherit u-boot-config
+
+************************
+do_fetch
+do_unpack
+do_patch
+do_configure
+do_compile
+		do_testt()
+do_install
+do_deploy()
+do_build
+do_package
+do_QA
+
+.
+.
+.
+***********************************************
+
+how to create new custom task in bb file:
+****************************************
+
+LICENSE="GPLv3"
+LIC_FILES_CHKSUM="file://COPYING.LESSER;md5=4fbd65380cdd255951079008b364516c"
+SRC_URI="git://github.com/stephane/libmodbus.git"
+SRCREV="6eaaad6b2d6fa434772ae9d419adfa9ae38f625e"
+
+PV="v3.1.2+git.${SRCPV}"
+
+S="${WORKDIR}/git"
+
+inherit autotools
+
+
+do_testt:beaglebone-yocto(){			# when machine is beaglebone-yocto then only this task will
+        cd ${S}					# excute if you compile others it wont excute
+        mkdir yoctotutor
+        echo "hello" > yt.txt
+}
+
+addtask testt before do_install after do_compile
+***************************************************************
+
+Assignments:
+************
+1. create new rootfs images
+        core-image-thales.bb
+2. modify some in libmodbus souce and create patches and apply in yocto
+3. create new u-boot bb file
+        u-boot-thales_2021.10.bb take reference of u-boot_202021.10.bb
+4. bitbake -c populate_sdk core-image-minimal
+
+
+
+
+
+
+
+
+
+
+
+
+
+

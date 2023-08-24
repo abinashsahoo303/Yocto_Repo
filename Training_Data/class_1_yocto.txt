@@ -1,0 +1,199 @@
+directory arch of yocto:
+************************
+
+meta-layer/
+	README
+	LICENSE/COPYING
+	conf/
+	recipes-*/*/*.bb
+			all bb fles
+
+
+
+
+└── poky
+    ├── bitbake				# buiid tool
+    ├── documentation
+    ├── LICENSE
+    ├── meta				# rootfs bb files available
+    ├── meta-poky			# distro conf file 
+    ├── meta-yocto-bsp			# machine conf files
+    ├── oe-init-build-env		# yocto env setup script
+
+
+├── build
+│   ├── conf
+│   │ 	├── bblayers.conf
+│   │ 	├── local.conf
+│   │ 	├── template.conf
+│   ├── downloads					# all download files present here
+│   ├── sstate-cache					# cache of compiled pkgs
+│   └── tmp
+	└──work
+	    └── x86_64-linux				# all your nave pkgs compiled
+			gcc-cross-arm
+	    └── beaglebone_yocto-poky-linux-gnueabi	# machine realated pkgs compiled here
+	    └── cortexa8hf-neon-poky-linux-gnueabi	# rootfs related pks compiled here
+	    └──all-poky-linux
+
+*********************************************************************
+
+hello.c
+*******
+#include<stdio.h>
+int main(){
+	printf("hello world");
+	return 0;
+}
+
+**********************
+
+PN_PV.bb
+PN=hello
+PV=1.0
+
+vim hello_1.0.bb
+____________
+DESCRIPTION=""
+LICENSE=""
+SRC_URI =""
+S="${WORKDIR}"
+do_compile(){
+
+}
+do_install(){
+
+}
+______________
+
+DESCRIPTION=""
+LICENSE=""
+SRC_URI =""
+S="${WORKDIR}"
+
+do_compile(){
+	cd ${S}
+	${CC} hello.c -o hello
+}
+do_install(){
+
+	install -d ${D}/usr/bin
+	install -m 777  ${S}/hello ${D}/usr/bin
+
+}
+____________________________
+
+SRC_URI =""
+
+	local
+		file://
+	internet
+		https://
+		git
+		ftp
+
+
+TMPDIR ?= "${TOPDIR}/tmp"
+CACHE = "${TMPDIR}/cache${@['', '/' + str(d.getVar('MACHINE'))][bool(d.getVar('MACHINE'))]}${@['', '/' + str(d.getVar('SDKMACHINE'))][bool(d.getVar('SDKMACHINE'))]}"
+# The persistent cache should be shared by all builds
+PERSISTENT_DIR = "${TOPDIR}/cache"
+LOG_DIR = "${TMPDIR}/log"
+
+STAMPS_DIR ?= "${TMPDIR}/stamps"
+STAMP = "${STAMPS_DIR}/${MULTIMACH_TARGET_SYS}/${PN}/${EXTENDPE}${PV}-${PR}"
+STAMPCLEAN = "${STAMPS_DIR}/${MULTIMACH_TARGET_SYS}/${PN}/*-*"
+BASE_WORKDIR ?= "${TMPDIR}/work"
+WORKDIR = "${BASE_WORKDIR}/${MULTIMACH_TARGET_SYS}/${PN}/${EXTENDPE}${PV}-${PR}"
+
+
+WORKDIR = "build/tmp/work/cortexa8-linux-gnu}/hello/1.0-r0"
+
+*******************************************************************
+
+when i run "bitbake hello" what happens internally?
+or
+functionality of bitbake?
+
+bitbake core-image-minimal
+	1. bitbake will compile toolchain
+	2. bitbake checks for bootloder
+		if bootloader present it will skip compile of bootloder
+		else it will compile bootloder
+	2. it will check for zimage
+		if zimage present it will skip
+			else
+				cmpile linux bb file
+	3. it wiil compile rootfs
+*********************************************************
+
+
+
+bitbake hello
+	1. it opens conf/bblayers.conf
+		and open meta-layers and finds the bb files using meta-layrer/conf/layer.conf with BBFILES
+	2. it opens conf/local.conf 
+		and checks which machine i need to compile
+			fr e.x its arm 
+	3. it can checks arm toolcahin if present skip toolchain compilation else compiles toolchain
+	4. now bitbake follows btbake task
+
+bitbake taks:
+do_fetch() 	# it open hello.bb and check SRC_URI and copy to build/downloads dir
+do_unpack()	# it extract hello source to ${WORKDIR}
+do_patch()	# check for patches 
+do_sysroot()	# setup toolchain setup
+do_configure()	# bydefault this is dummy function
+do_compile()    # bydefault this is dummy function
+do_install()    # bydefault this is dummy function
+do_package()
+do_QA()
+..
+..
+..
+
+meta-thales/
+├── conf
+│   ├── layer.conf
+│   └── machine
+│       └── thales-am335x.conf
+├── COPYING.MIT
+├── README
+└── recipes-core
+    └── hello-example
+        ├── hello
+        │   └── hello.c
+        └── hello_1.0.bb
+
+meta-thales-distro/
+conf/
+	distro/
+		thales-xwaland.conf
+		thales-framebuffer.conf
+
+bitbake commands:
+**************
+
+bitbake hello
+bitbake hello -c cleansstate
+bitbake hello -c clean
+bitbake hello -c cleanall
+
+bitbake-layers create-layer meta-thales
+bitbake-layers add-layer  ../sources/meta-thales
+		this command adds meta-thales to build/conf/bblayers.conf
+
+
+*******************************************************************
+Assignments
+1. create meta-layer meta-thales
+2. create hello.bb for hello.c
+3. create hellocpp.bb for hellocpp.cpp
+4. create
+        hello.c hello.h Makefile
+        hellomake.bb
+5. crearte
+        libhello.c hello.h
+        libhello.bb
+
+
+

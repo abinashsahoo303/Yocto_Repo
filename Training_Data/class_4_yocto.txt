@@ -1,0 +1,185 @@
+u-boot:
+**********
+1. create new bu-boot-thales.bb
+2. menuconfig
+3. defconfig
+
+
+
+
+
+create new | custom  defconfig files:
+-------------------------------------
+
+	bitbake -c menuconfig virtual/bootloader	# menuconfig is used to modfy configuration of board
+			# add new commands commands 	
+	bitbake -c diffconfig virtual/bootloader	# diffcobnfig used to create modified menuconfig data
+			# you ill get fragment.cfg  rename to commands.cfg
+	copy commands.cfg to meta-thalees/recipes-bsp/u-boot
+	vim meta-thalees/recipes-bsp/u-boot_%.bbappend
+		FILESEXTRAPATHS:prepend :="${THISDIR}/${PN}/:"
+		SRC_URI += "file://commands.cfg"
+
+How to apply patches to u-boot
+------------------------------
+	if you u-boot developer provide any patches apply using SRC_URI
+	e,g 0001-MOdified-Readme.patch
+	vim u-boot_%.bbappend
+                FILESEXTRAPATHS:prepend :="${THISDIR}/${PN}/:"
+                SRC_URI += "file://0001-MOdified-Readme.patch"
+
+*****************************************************************
+u-boot_2020.1.bb 
+		u-boot.img
+u-boot_2019.10.bb
+		u-boot.img
+u-boot_2022.1.bb
+		u-boot.img
+
+
+
+u-boot-thales_20201.bb
+		u-boot.img
+
+in machine.cof e.g begalebone-yocto.conf
+*****************************************
+PREFERREF_PROVIDER_vitual/bootloader ="u-boot"
+PREFERRED_VERSION_u-boot ="2020.1"
+
+**********************************************************
+
+how to customise linux defconfig:
+********************************
+bitbake -c menuconfig virtual/kernel		# opens menuconfig window modify some audio drivers
+bitbake -c diffconfig virtual/kernel		# this will create fragment.cfg of audio modifications
+copy fragment.cfg to audio.cfg
+create linux-yocto_5.bbappend
+
+	FILESEXTRAPATHS_prepend :="${THISDIR}/${PN}/:"
+	SRC_URI += "file://audio.cfg"
+******************************************************************************************
+
+how to create new machine.conf:
+*******************************
+1. vim meta-thales/conf/machine/am335x-thales.conf
+	reference i am taking copying bealebone-yocto.conf am335x-thales.conf
+2. add COMPATABLE_MACHINE ="am335x-thales" in
+
+	u-boot-thales.bb files
+	linux-thales.bb file
+
+
+bealebone-yocto.conf
+--------------------
+require conf/include/tune-cortexa8.inc
+
+PREFERRED_PROVIDER_virtual/bootloder ="u-boot"
+
+PREFFERED_PROVIDER_virtual/kernel ="linux-yocto"
+
+CONSOLE="ttyO0:115200"
+
+UBOOT_DEFCONFIG="amm335x_evm_defconfig"
+
+UBOOT_ADDRESS = "0x8000000"
+
+SUFFIX="img"
+U_BOOT_IMAGE="u-boot.${SUFFIX}"
+
+KERNEL_IMAGE ="zImage"
+KERNEL_DEVICETREE ="am335x-beaglebone.dtb am335x-thales.dtb"
+
+KERNEL_EXTRA_ARGS ="${UBOOT_ADDRESS}"
+BOOT_FILES =" MLO u-boot.img zImage beaglebone.dtb"
+
+
+IMAGE_FSTYPES =" targ.gz .wic .ext4 .sdcard "
+
+PREFERRED_PROVIDER_xserver ="xserver-org"
+
+*****************************************
+
+
+
+
+what is wic file?
+
+wic files is used to create your sdcard partiotn boot and root then copy images to that parttion
+*************************************************************************************************
+
+
+
+dtb file used for pinmux of board pins e.g gpio i2c spi eth can bus RAM CAM FLASH:
+**********************************************************************************
+
+bittbake core-image-minimal
+----
+1. bitbake checks for toolchain
+2. bitbake check for bootloder
+3. botbake check for kernel
+4. bitbake compile rootfs packages (.bb files)
+-----------------------------------------------------------------------
+
+busybox pending
+************************************************************************
+
+
+git tutorial:
+*************
+
+sudo apt-get install git
+
+git config --global user.name "siva.v"
+git config --global user.email "sia.v@thales.com"
+
+mkdir test
+cd test
+git init .
+
+git status
+git add filename
+git commit
+git commit --amend
+git log
+git branch
+git checkout beanch
+git checkout -b branchname
+
+git push
+git pull
+
+git reset 
+git reset --hard
+
+git rebase
+git cherry-pich
+git format-patch
+git diff
+git show
+git merge
+git remote -v
+***************************************************************
+Assignments:
+************
+0. create new u-boot-thales.bb and linux-thales.bb
+	take refernce from u-boot_20201.0.bb & linux-yocto_5.10.bb
+
+1. try menuconfig for uboot and create fragment.cfg
+2. try menuconfig for linux and create fragment.cfg
+5. try to enable busybox commands using 
+	bitbake -c menuconfig busybox
+	busybox_%.bbappend
+
+3. create new machine.conf
+3. craete new sdk
+	bitbake -c populate_sdk core-image-minimal
+	output: ls tmp/demploy/sdk/ .sh
+		
+4. try all git commands
+
+
+
+
+
+
+

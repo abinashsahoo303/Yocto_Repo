@@ -1,0 +1,222 @@
+
+yocto assignment aoperato:
+
+
+test1 modbus siva rhi abhi  
+
+IMAGE_INSTALL_append_arm = " hello" | IMAGE_INSTALL =+ "hello"
+
+IMAGE_INSTALL_prepend = " hello" | IMAGE_INSTALL += "hello"
+
+3.1 - dunfell
+
+3.4 | 4.0 - hoinster , kirkstone
+
+
+IMAGE_INSTALL:append:arm:beaglebone-yocto = " hello" | IMAGE_INSTALL =+ "hello"
+
+IMAGE_INSTALL:prepend = " hello" | IMAGE_INSTALL += "hello"
+
+
+
+hello_1.0.bb  compile 2 languages hello, helloworld and hellocpp
+
+
+
+_______
+
+SRC_URI += "https://"
+
+
+do_install (){
+
+	cd ${S}
+	install -d ${D}/usr/bin
+	install -m 666 ${S}/scrpt1.sh ${D}/usr/bin
+}
+
+***********************************************************
+Assignmenst:
+************
+1. create hello.bb files to compile hello.c and hellocpp.cpp
+2. create .bbappend files
+	hello.bb hello.c
+	helllo,.bbappend hellocpp.cpp
+3. create bb files for spliting packages 
+	hello.bb
+		PACKAGES = " hello-c hello-cpp"
+		FILES_hello-c =""
+		FILES_hello-cpp = ""
+
+		vim conf/local.conf
+			IMAGE_INSTALL_appned = ""
+**************************************************************************
+
+how to write bb files for internet packages download?
+***************************************************************************
+
+___
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=""
+S="${WORKDIR}"
+do_compile(){
+
+}
+do_install(){
+
+}_____
+
+
+SRC_URI =""
+1. local fetch:
+	SRC_URI = "file://   "
+
+2. intenet
+
+	git
+		LICENSE= "GPLv2"
+		LIC_FILES_CHKSUM= "file://COPYING;md5="
+		SRC_URI ="git:/example.com/hello.git;branch=bname"
+		SRCREV=""
+		
+	https/ftp
+		LICENSE="GPLv2"
+		LIC_FILES_CHKSUM="file:// ; md5="
+		SRC_URI ="https://example.com/hello.tar.gz"
+		SRC_URI[md5sum]=""			# checksum of hello.tar.gz
+		SRC_URI[sha256sum]=""			# checksum of hello.tar.gz
+
+
+libmodbus using GIT:
+********************
+libmodbus_3.1.0.bb
+------------------
+DESCRIPTION="bb files for libmodbus 3.1.0"
+
+LICENSE="GPLv3"
+LIC_FILES_CHKSUM="file://COPYING;md5=d32239bcb673463ab874e80d47fae504"
+SRC_URI="git://github.com/stephane/libmodbus.git"
+SRCREV="a66b1c1f6db1d64933c782e16fb37a861d2fddb6"
+
+SRC_URI += "file://0001-Added-new-comment-line-in-modbus.c.patch \
+        file://0002-Added-printf-in-modbus.c.patch \
+"
+
+S="${WORKDIR}"
+
+EXTRA_OECONF = "--prefix=/usr"
+
+inherit autotools
+
+_________________
+libmodbus_3.1.2.bb      using https:
+-----------------
+
+
+************
+mbpoll_1.4.11.bb
+-----
+DESCRIPTION="mbpoll bb file "
+
+LICENSE="GPLv3"
+
+LIC_FILES_CHKSUM="file://COPYING;md5=1ebbd3e34237af26da5dc08a4e440464"
+
+SRC_URI="https://github.com/epsilonrt/mbpoll/archive/refs/tags/v1.4.11.zip"
+SRC_URI[md5sum] = "a2b0aa2501b0ca05b8cf86e340b00f1f"
+SRC_URI[sha256sum]="cf16acfa1ace360e7695591a3c490f40abe8a0884d2a1fb747e06d3e8d80aec2"
+
+DEPENDS="libmodbus"
+
+S="${WORKDIR}/mbpoll-1.4.11/"
+
+do_compile(){
+        cd ${S}
+        install -d build
+        cd build
+        cmake ..
+        make
+}
+do_install(){
+        install -d ${D}/usr/bin
+        install -m 777 ${S}/build/mbpoll ${D}/usr/bin
+}
+
+
+**********************************************************
+https://github.com/epsilonrt/mbpoll/archive/refs/tags/v1.4.11.zip
+
+
+class hello
+	ADD=4
+	test()
+	{
+	}
+
+
+
+inherit hello 
+
+
+bbclass:
+**********
+1. if your source is based on Makefiles  use base.bbclass
+	inherit base
+2. if your source is based on configure files then use autotools.bbclass
+	inherit autotools
+3. if your source is based on cmakefiles use cmake.bbclass
+	inherit cmake
+4. if your source is u-boot use u-boot related bbclasses
+
+*********************************************************************
+Assignmenst:
+************
+1. create hello.bb files to compile hello.c and hellocpp.cpp
+2. create .bbappend files
+        hello.bb hello.c
+        helllo,.bbappend hellocpp.cpp
+3. create bb files for spliting packages
+        hello.bb
+                PACKAGES = " hello-c hello-cpp"
+                FILES_hello-c =""
+                FILES_hello-cpp = ""
+
+                vim conf/local.conf
+                        IMAGE_INSTALL_appned = ""
+4. create libmodbus_3.1.0.bb
+5. upgrade libmodbus_3.1.2.bb
+6. create mbpoll_1.4.11.bb
+7. downgrade mbpoll_3.2.bb
+8. create libmodbus.inc and use 
+9. createn mbpoll.inc and use
+10. use bbclasses for
+	1. hellomake 
+		base
+	2. libmodbus
+		autotools
+	3. mbpoll
+		cmake
+
+
+
+
+hello.c
+
+compile time dependency   libhello.so
+
+run time dependency    libtest.so
+
+./hello
+
+************************************************
+Assignments:
+************
+1. create new rootfs images
+	core-image-thales.bb
+2. modify some in libmodbus souce and create patches and apply in yocto
+3. create new u-boot bb file
+	u-boot-thales_2021.10.bb take reference of u-boot_202021.10.bb
+4. bitbake -c populate_sdk core-image-minimal
+
+

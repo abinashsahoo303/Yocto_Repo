@@ -1,0 +1,297 @@
+yocto build system:
+
+1. why yocto build system needed
+2. how to setup yocto 
+
+					Embedded
+			H/W				S/W
+
+	intel pc/laptop, HP,lenovo, mobiles
+
+	intel|arm|mips|ppc|RISC
+
+	intel: hp,leno,dell
+	arm: all mobiles,beaglebone, raspi
+	
+1. HARDWARE: 
+
+beaglebone:
+
+	ARCH (arm + core)
+	  | + SMAll amount of RAM & ROM & interfaces
+	SoC
+	  | + PMIC + external RAM + ext storage device
+	SoM
+          | + ext periperal (eth, led, button, i2c, spi, usb,sdcard, jtag,uart
+	SBC
+
+
+ARCH = arm + core(1 core : cortex a8)
+
+SoC= system on Chip
+
+	ARCH + SRAM + SROM + periperal interfaces (gpio,uart,i2c, spi,can)
+
+Som= system on modules
+	SOC + PIC + ext RAM(sdram, ddr3, ddr4,ddr5) + ext FLASH (sdcard, NAND,NOR,emmc)
+			or
+	 ARCH + SRAM + SROM + periperal interfaces  + SOC + PIC + ext RAM(sdram, ddr3, ddr4,ddr5) + ext FLASH (sdcard, NAND,NOR,)
+
+
+	
+
+
+SBC=single board computer 
+
+model-1: phyboard wega
+	SOM + ext periprals
+
+		or
+
+Model-2:  beaglebone
+	 SOC + PIC + ext RAM + ext FLASH  + ext periperals (eth usb led button hdmi)
+
+	SOC= amm335x
+	PMIC= pmic
+	RAM= 512 RAM
+	emmc: 1GB
+
+
+2. SOFTWARE: Operating System  OS
+
+OS:
+	bootloader + kernel + rootfs
+
+INTEL:
+	windows : grub + windowkernel +gui
+	ubuntu:   grub  + linux  + gui
+ARM:
+
+embedded os: 	bootloader (PL + SL) + kernel + rootfs	
+		uboot    + linux  + gui
+		MLO & u-boot.bin
+
+BOOTING Process:
+when you powe on board
+1. in soc ROM code loads and try to find boot device(NAND|NOR|emmc|sdcard) using boot config pins
+2. rom code load Primary loader to SRAM 
+3. PL loader excutes inside the SRAM and try to enable ext RAM and Load bootloader to  ext RAM
+3. bootlader loads linux kernel to ext RAM
+4. kernel loads rootfs to ram
+
+
+bootloader: 
+	 
+kernel:
+rootfs:
+
+
+
+
+bootloder: uboot
+	1. download uboot source
+	1.1 CROSS toolchain setup
+	2. cross compile
+	3. flash u-boot.bin
+30 mins
+
+bootloader.sh
+	wget u-bootURL
+	cd u-boot
+	arm-linux-ggc makel
+
+
+
+linux:  uImage| zImage | Image
+	1. download linux kernel source 
+	1.1 cross toolchain setup
+	2. cross compile	
+	3. flash to board
+30 mins
+
+rootfs:   collection many packages
+	  all commands + all languages + all 3rd packsges (apache, libmodbus gpio libs)
+	ls, pwd,who    +  glic cpp python + 
+
+1000 pkgs
+	1. 1000 times downlaod source
+		download.sh
+			wget 
+			git clone
+	
+	2. 1000 times cross compile
+		.c .cpp .java .python MAkefiles cmakefiles autogen,sh  congifures 
+
+		compilec.sh
+			.c
+		compilecpp.sh
+			.cpp
+
+
+			.java		
+
+	3. 1000 timestime flash			| tar.gz
+			tar.sh
+
+build.sh
+	bootloader.sh
+	kernel.sh
+	download.sh
+	compile.sh
+	tar.sh
+
+
+build.sh build system 
+
+we need a advanced automated tool to build all my rootfs pakcjes with 1 command
+that tool we called as build tool or build system
+
+build system: build system is a automated tool to build all packeges
+
+build system types:
+			
+openWRT: build system to build linux os(rootfs along woth uboot and kernel) netwolrs like routers
+ptxDIST: build system to build linux os
+buildroot: build system to build linux os
+
+
+in 2010 linux foundation started a project(yocto project) to create a advanced build system(yocto build system).
+	which mainly based on bash and python
+
+poky/
+	bitbake: build tool to compile all types paCKGES(.c .cpp .java Makefiles cmakefiles) .bb 
+	meta/  :
+	meta-poky/:
+
+
+
+hello.c
+multiplication mul.c
+
+
+UBUNTU: Distribution to provide linux OS       4 GB .iso
+REDHAT: Distribution to provide linux OS
+FEDORA: Distribution to provide linux OS
+CENTOS: Distribution to provide linux OS
+POKY  : Default reference Distribution to provide custom linux OS      8MB OS 80 MB os 8GB OS  2GB OS
+
+
+yocto version: 
+
+M1
+M2
+M3
+M1_R2
+M2_R2
+M3_R2
+0.5
+0.6
+1.5 dizyy
+1.6 dora
+1.7
+1.8 fido
+2.0 jethro
+2.1 krogoth
+2.2 morty
+2.3 pyro
+2.4 rocko
+2.5 sumo
+2.6 thud
+2.8 warrior
+3.0 zeus         
+3.1 dunfell      LTS 2024	
+	gcc 4.9
+	3.1.1 5.1.0
+3.2 gatesgrawth
+3.4 hardknot
+3.5 hoinster
+4.0 kirkstone    LTS 2024
+4.1 langdale
+
+https://wiki.yoctoproject.org/wiki/Releases
+***********************************************************************
+
+now I want to build yocto in my pc:
+
+Requirements of yocto build system:
+1. CENT OS PC
+	CETNOS version 7.0 | 8.0  
+	RAM: 4GB + 
+	cores: 4 +
+2. install host dependencies
+
+$ sudo yum install -y epel-release
+$ sudo yum makecache
+$ sudo yum install gawk make wget tar bzip2 gzip python3 unzip perl patch diffutils diffstat git 
+$ sudo yum install cpp gcc gcc-c++ glibc-devel texinfo chrpath socat perl-Data-Dumper perl-Text-ParseWords 
+$ sudo yum install perl-Thread-Queue python3-pip xz which SDL-devel xterm mesa-libGL-devel zstd lz4
+$ sudo pip3 install GitPython jinja2
+$ sudo yum install make python3-pip which
+$ sudo pip3 install sphinx sphinx_rtd_theme pyyaml
+
+3. download yocto 
+	
+	cd ~/
+	mkdir yocto
+	mkdir yocto/sources
+	cd  yocto/sources
+	git clone https://git.yoctoproject.org/poky
+	cd poky
+	git ckechout kirkstone-4.0.4
+	cd ../..
+4. build octo
+	source sources/poky/oe-init-build-env
+		1. vim conf/local.conf
+			search for MACHINE  
+			comment MACHINE ??= "qemux86-64" 
+			uncomment MACHINE ?= "beaglebone-yocto"
+	bitbake core-image-minimal 
+
+Assignments:
+************
+1. make list of all type of soc in industry.  10 mins
+2. make list of all type of SoM 	      10 mins
+3. make a list of all type of SBC	      10 mins
+
+company		soc		core		arch
+
+ti
+		am335x		cortex a8	armv7
+		am57x		cortex a9	armv7
+		am57x		cortex a11	armv7
+
+nxp
+		im6		cortex a7	armv7
+
+
+broadcom
+		bcm27
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

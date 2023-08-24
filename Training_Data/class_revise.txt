@@ -1,0 +1,138 @@
+u-boot:
+*******
+1. how to write bb fire
+2. Menuconfig && diffconfig support
+3. pathces
+4. add COMPATABBLE_MACHINE="|beaglenmone"
+
+
+how to write u-boot_20201.bb 
+----------------------------
+if soc: am335x refence bb file will given by ti
+
+u-boot-ti_2020.10.bb
+require recipes-bsp/u-boot/u-boot.inc
+
+SRCREV=""
+SRC_URI =""
+PV="2020.10+git${SRCPV}"
+***************************************
+u-boot-thales_2020.10.bb
+------------------------
+require recipes-bsp/u-boot/u-boot.inc
+require recipes-bsp/u-boot/u-boot-imx.inc
+
+SRCREV=""
+
+
+SRC_URI +=" \
+	file://0001-hello.patch \
+	file://poweroff.cfg \
+"
+
+PV="2020.10+git${SRCPV}"
+------------------------------------
+
+1. how open menuconfig
+	bitbake -c menuconfig virtual/bootloder
+	bitbake -c diffconfig virtual/bootloder
+	
+
+
+helloc.bb  	 helloworld
+hellocpp.bb 	 helloworld
+
+IMAGE_INSTALL_append =" helloc"
+
+PREFERRED_PROVIDER_virtual/hello = "hellocpp"
+
+
+bitbake virtual/hello
+
+
+u-boot_2020.10.bb
+u-boot_2020.05.bb
+u-boot-thales_2020.10.bb
+
+PREFERRED_PROVIDER_virtual/bootloader ="u-boot"
+PREFERRED_VERION_u-boot ="20.05"
+**************************************************
+how to create new machine: custom am335x board
+*************************
+
+DEFAULTTUNE="cortexta8"
+require conf/machine/include/tune-cortexa8.inc
+
+PREFERRED_PROVIDER_virtual/kernel ="linux-yocto"
+PREFERRED_PROVIDER_virtual/bootloader ="u-boot"
+
+U_BOOT_SPL="MLO"
+U_BOOT="u-boot"
+U_BOOT_SUFFIX="imxg"
+KERNEL_IMAGE="zImage"
+KERNEL_DEVICETREE="am335x-beaglebone.dtb"
+U_BOOT_LOAD_ADDRESS="0x8000000"
+CONSOLE ="115200:ttyO0  115200:ttyS0"
+
+MAHINE_FEATURES="usbhost usbgadget vfat wifi alsa"
+IMAGE_FYTYPES=" tar.gz .wic ext4 .sdcard "
+WIK_FILES="beaglebone-sd.wik"
+
+BOOT_FILES="MLO u-boot.img zImage am335x-beagle.dtb "
+******************************************************8
+
+
+
+
+am335x:
+	MLO
+	fw_ware
+	u-boot.img 
+	zIMage adtb
+	rootfs
+
+
+
+do_install(){
+	install -m 777 ${S}/hello ${D}/usr/bin
+
+}
+********************************************************
+busybox: is a sinle binary which provide all require commands(less fearured) for board
+
+
+
+how to write bbclass
+********************
+hello.bbclass
+#!/bin/python3
+
+do_test(){
+	echo "this is test file"
+}
+
+add task test after do_compile before do_intall
+
+
+hello.bb
+--------
+DESCRIPTION=""
+LICENSE=""
+SRC_URI=""
+S=${WORKDIR}
+
+inherit test
+
+do_compile(){
+}
+do_install(){
+}
+************************************
+
+sources/
+	poky
+	meta-thales
+	
+
+
+
